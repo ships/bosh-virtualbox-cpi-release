@@ -18,6 +18,8 @@ type VMImpl struct {
 	portDevices bpds.PortDevices
 	store       Store
 
+	stemcellAPIVersion apiv1.StemcellAPIVersion
+
 	driver driver.Driver
 	logger boshlog.Logger
 }
@@ -26,15 +28,17 @@ func NewVMImpl(
 	cid apiv1.VMCID,
 	portDevices bpds.PortDevices,
 	store Store,
+	stemcellAPIVersion apiv1.StemcellAPIVersion,
 	driver driver.Driver,
 	logger boshlog.Logger,
 ) VMImpl {
 	return VMImpl{
-		cid:         cid,
-		portDevices: portDevices,
-		store:       store,
-		driver:      driver,
-		logger:      logger,
+		cid:                cid,
+		portDevices:        portDevices,
+		store:              store,
+		stemcellAPIVersion: stemcellAPIVersion,
+		driver:             driver,
+		logger:             logger,
 	}
 }
 
@@ -46,8 +50,8 @@ func (vm VMImpl) SetProps(props VMProps) error {
 		"--name", vm.cid.AsString(),
 		"--memory", strconv.Itoa(props.Memory),
 		"--cpus", strconv.Itoa(props.CPUs),
-		// Using minimal paravirtualization provider to avoid CPU lockups
 		"--paravirtprovider", props.ParavirtProvider,
+		"--audio", props.Audio,
 	)
 	if err != nil {
 		return err
